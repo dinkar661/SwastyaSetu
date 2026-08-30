@@ -7,7 +7,7 @@ const patientService = {
 
         const response =
             await axiosClient.post(
-                "/patients",
+                "/patients/",
                 data
             );
 

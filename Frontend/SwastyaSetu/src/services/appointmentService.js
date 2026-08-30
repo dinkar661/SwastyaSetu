@@ -7,7 +7,7 @@ const appointmentService = {
 
         const response =
             await axiosClient.post(
-                "/appointments",
+                "/appointments/",
                 data
             );
 
