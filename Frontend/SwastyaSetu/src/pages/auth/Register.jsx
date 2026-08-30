@@ -35,7 +35,10 @@ const Register = () => {
             name: "",
             email: "",
             password: "",
-            role: "PATIENT"
+            phone: "",
+            role: "PATIENT",
+            language: "en",
+            facilityId: ""
         });
 
 
@@ -53,9 +56,29 @@ const Register = () => {
 
         e.preventDefault();
 
+
+        // Create data according to User schema
+        const data = {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+            role: formData.role,
+            language: formData.language
+        };
+
+
+        // facilityId is optional
+        if (formData.facilityId.trim() !== "") {
+
+            data.facilityId =
+                formData.facilityId;
+        }
+
+
         const result =
             await dispatch(
-                registerUser(formData)
+                registerUser(data)
             );
 
 
@@ -72,7 +95,7 @@ const Register = () => {
 
     return (
 
-        <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
 
             <form
                 onSubmit={handleSubmit}
@@ -93,6 +116,8 @@ const Register = () => {
                 )}
 
 
+                {/* Name */}
+
                 <input
                     type="text"
                     name="name"
@@ -103,6 +128,8 @@ const Register = () => {
                     required
                 />
 
+
+                {/* Email */}
 
                 <input
                     type="email"
@@ -115,6 +142,21 @@ const Register = () => {
                 />
 
 
+                {/* Phone */}
+
+                <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                    className="input input-bordered w-full mb-4"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                />
+
+
+                {/* Password */}
+
                 <input
                     type="password"
                     name="password"
@@ -123,14 +165,18 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    minLength={6}
                 />
 
 
+                {/* Role */}
+
                 <select
                     name="role"
-                    className="select select-bordered w-full mb-6"
+                    className="select select-bordered w-full mb-4"
                     value={formData.role}
                     onChange={handleChange}
+                    required
                 >
 
                     <option value="PATIENT">
@@ -141,16 +187,66 @@ const Register = () => {
                         Health Worker
                     </option>
 
+                    <option value="DOCTOR">
+                        Doctor
+                    </option>
+
+                    <option value="ADMIN">
+                        Admin
+                    </option>
+
                 </select>
 
 
+                {/* Language */}
+
+                <select
+                    name="language"
+                    className="select select-bordered w-full mb-4"
+                    value={formData.language}
+                    onChange={handleChange}
+                    required
+                >
+
+                    <option value="en">
+                        English
+                    </option>
+
+                    <option value="hi">
+                        Hindi
+                    </option>
+
+                    <option value="mr">
+                        Marathi
+                    </option>
+
+                </select>
+
+
+                {/* Facility ID */}
+
+                <input
+                    type="text"
+                    name="facilityId"
+                    placeholder="Facility ID (Optional)"
+                    className="input input-bordered w-full mb-6"
+                    value={formData.facilityId}
+                    onChange={handleChange}
+                />
+
+
+                {/* Submit */}
+
                 <button
+                    type="submit"
                     className="btn btn-primary w-full"
                     disabled={loading}
                 >
+
                     {loading
                         ? "Creating..."
                         : "Register"}
+
                 </button>
 
 
