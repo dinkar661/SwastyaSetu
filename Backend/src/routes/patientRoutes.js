@@ -1,5 +1,5 @@
 const express = require("express");
-const { createPatient, getPatient } = require("../controllers/patientControler");
+const { createPatient, getPatient,getAllPatients } = require("../controllers/patientControler");
 
 const { protect } = require("../middleware/authMiddleware");
 const { authorize } = require("../middleware/roleMiddleware");
@@ -16,6 +16,9 @@ const Patientrouter = express.Router();
 
 Patientrouter.post("/",protect,authorize("HEALTH_WORKER", "ADMIN"),createPatient);
 
+// Get a patient by ID
 Patientrouter.get("/:id",protect,getPatient);
+
+Patientrouter.get("/",protect,authorize("HEALTH_WORKER", "ADMIN"),getAllPatients);
 
 module.exports = Patientrouter;

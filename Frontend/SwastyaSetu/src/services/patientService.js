@@ -6,10 +6,7 @@ const patientService = {
     createPatient: async (data) => {
 
         const response =
-            await axiosClient.post(
-                "/patients/",
-                data
-            );
+            await axiosClient.post("/patients/",data);
 
         return response.data;
     },
@@ -18,9 +15,7 @@ const patientService = {
     getPatient: async (id) => {
 
         const response =
-            await axiosClient.get(
-                `/patients/${id}`
-            );
+            await axiosClient.get(`/patients/${id}`);
 
         return response.data;
     },
@@ -29,11 +24,9 @@ const patientService = {
     getPatients: async () => {
 
         const response =
-            await axiosClient.get(
-                "/patients"
-            );
+            await axiosClient.get("/patients/");
 
-        return response.data;
+        return response.data.patients;
     }
 
 };

@@ -3,9 +3,7 @@ import {
 } from "react-router-dom";
 
 
-const PatientCard = ({
-    patient
-}) => {
+const PatientCard = ({patient}) => {
 
     return (
 

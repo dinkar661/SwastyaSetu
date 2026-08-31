@@ -50,8 +50,26 @@ const createPatient = async (req, res) => {
   }
 };
 
-// Get all patients
 
+// Get all patients
+const getAllPatients = async (req, res) => {
+  try {
+    const patients = await Patient.find();
+
+    res.status(200).json({
+      success: true,
+      patients
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+// Get one patient
 const getPatient = async (req, res) => {
   try {
     const patient = await Patient.findById(
@@ -74,5 +92,6 @@ const getPatient = async (req, res) => {
 
 module.exports = {
   createPatient,
-  getPatient
+  getPatient,
+  getAllPatients
 };
