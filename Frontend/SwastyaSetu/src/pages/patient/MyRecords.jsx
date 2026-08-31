@@ -1,63 +1,44 @@
-import {
-    useEffect,
-    useState
-} from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-import {
-    useSelector
-} from "react-redux";
-
-import medicalRecordService
-    from "../../services/medicalRecordService";
-
+import medicalRecordService from "../../services/medicalRecordService";
 
 const MyRecords = () => {
 
-    const user =
-        useSelector(
-            (state) => state.auth.user
-        );
+    const user = useSelector(
+        (state) => state.auth.user
+    );
 
-
-    const [records, setRecords] =
-        useState([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
+    const [records, setRecords] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
 
-        const loadRecords =
-            async () => {
+        const loadRecords = async () => {
 
-                try {
+            try {
+                
+                const data =
+                    await medicalRecordService.getPatientRecords(user.id);
 
-                    const data =
-                        await medicalRecordService
-                            .getPatientRecords(
-                                user.patientId ||
-                                user._id
-                            );
+                setRecords(data);
 
-                    setRecords(data);
+            } 
+            catch (error) {
 
-                } catch (error) {
+                console.error(error);
 
-                    console.error(error);
+            } finally {
 
-                } finally {
+                setLoading(false);
+            }
+        };
 
-                    setLoading(false);
-                }
-            };
-
-
-        if (user) {
+        if (user?.id) {
             loadRecords();
         }
 
-    }, [user]);
+    }, [user?.id]);
 
 
     if (loading) {
@@ -73,11 +54,15 @@ const MyRecords = () => {
                 My Medical Records
             </h1>
 
+            {records.length === 0 ? (
 
-            <div className="space-y-4">
+                <p>No medical records found.</p>
 
-                {records.map(
-                    (record) => (
+            ) : (
+
+                <div className="space-y-4">
+
+                    {records.map((record) => (
 
                         <div
                             key={record._id}
@@ -89,20 +74,17 @@ const MyRecords = () => {
                             </h2>
 
                             <p>
-                                Symptoms:
-                                {" "}
+                                Symptoms:{" "}
                                 {record.symptoms}
                             </p>
 
                             <p>
-                                Prescription:
-                                {" "}
+                                Prescription:{" "}
                                 {record.prescription}
                             </p>
 
                             <p>
-                                Notes:
-                                {" "}
+                                Notes:{" "}
                                 {record.notes}
                             </p>
 
@@ -114,14 +96,14 @@ const MyRecords = () => {
 
                         </div>
 
-                    )
-                )}
+                    ))}
 
-            </div>
+                </div>
+
+            )}
 
         </div>
     );
 };
-
 
 export default MyRecords;

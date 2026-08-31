@@ -6,23 +6,16 @@ const medicalRecordService = {
     createRecord: async (data) => {
 
         const response =
-            await axiosClient.post(
-                "/medical-records",
-                data
-            );
+            await axiosClient.post("/records/",data);
 
         return response.data;
     },
 
 
-    getPatientRecords: async (
-        patientId
-    ) => {
+    getPatientRecords: async (patientId) => {
 
         const response =
-            await axiosClient.get(
-                `/medical-records/patient/${patientId}`
-            );
+            await axiosClient.get(`/records/${patientId}`);
 
         return response.data;
     }
