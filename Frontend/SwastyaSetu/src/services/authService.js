@@ -1,44 +1,43 @@
-import axiosClient from "./axiosClient";
+import api from "./api";
 
-const authService = {
 
-    register: async (userData) => {
-        const response =
-            await axiosClient.post(
-                "/auth/register",
-                userData
-            );
+// Login
+export const loginUser = async (data) => {
+    const response = await api.post(
+        "/auth/login",
+        data
+    );
 
-        return response.data;
-    },
-
-    login: async (credentials) => {
-        const response =
-            await axiosClient.post(
-                "/auth/login",
-                credentials
-            );
-
-        return response.data;
-    },
-
-    logout: async () => {
-        const response =
-            await axiosClient.post(
-                "/auth/logout"
-            );
-
-        return response.data;
-    },
-
-    getCurrentUser: async () => {
-        const response =
-            await axiosClient.get(
-                "/auth/me"
-            );
-
-        return response.data;
-    }
+    return response.data;
 };
 
-export default authService;
+
+// Get currently logged-in user
+export const getCurrentUser = async () => {
+    const response = await api.get(
+        "/auth/me"
+    );
+
+    return response.data;
+};
+
+
+// Logout
+export const logoutUser = async () => {
+    const response = await api.post(
+        "/auth/logout"
+    );
+
+    return response.data;
+};
+
+
+// Register
+export const registerUser = async (data) => {
+    const response = await api.post(
+        "/auth/register",
+        data
+    );
+
+    return response.data;
+};

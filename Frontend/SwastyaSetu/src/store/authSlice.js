@@ -1,25 +1,32 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
 import {
-    createSlice,
-    createAsyncThunk
-} from "@reduxjs/toolkit";
+    loginUser as loginAPI,
+    getCurrentUser,
+    logoutUser as logoutAPI,
+    registerUser as registerAPI,
+} from "../services/authService";
 
-import authService from "../services/authService";
 
+// ============================================
+// LOGIN
+// ============================================
 
-// Login
 export const loginUser = createAsyncThunk(
-    "auth/login",
-    async (credentials, thunkAPI) => {
+    "auth/loginUser",
+
+    async (data, { rejectWithValue }) => {
 
         try {
 
-            return await authService.login(
-                credentials
-            );
+            const response =
+                await loginAPI(data);
+
+            return response;
 
         } catch (error) {
 
-            return thunkAPI.rejectWithValue(
+            return rejectWithValue(
                 error.response?.data?.message ||
                 "Login failed"
             );
@@ -28,20 +35,79 @@ export const loginUser = createAsyncThunk(
 );
 
 
-// Register
-export const registerUser = createAsyncThunk(
-    "auth/register",
-    async (userData, thunkAPI) => {
+// ============================================
+// CHECK CURRENT USER
+// ============================================
+
+export const checkAuth = createAsyncThunk(
+    "auth/checkAuth",
+
+    async (_, { rejectWithValue }) => {
 
         try {
 
-            return await authService.register(
-                userData
-            );
+            const response =
+                await getCurrentUser();
+
+            return response;
 
         } catch (error) {
 
-            return thunkAPI.rejectWithValue(
+            return rejectWithValue(
+                error.response?.data?.message ||
+                "Not authenticated"
+            );
+        }
+    }
+);
+
+
+// ============================================
+// LOGOUT
+// ============================================
+
+export const logoutUser = createAsyncThunk(
+    "auth/logoutUser",
+
+    async (_, { rejectWithValue }) => {
+
+        try {
+
+            const response =
+                await logoutAPI();
+
+            return response;
+
+        } catch (error) {
+
+            return rejectWithValue(
+                error.response?.data?.message ||
+                "Logout failed"
+            );
+        }
+    }
+);
+
+
+// ============================================
+// REGISTER
+// ============================================
+
+export const registerUser = createAsyncThunk(
+    "auth/registerUser",
+
+    async (data, { rejectWithValue }) => {
+
+        try {
+
+            const response =
+                await registerAPI(data);
+
+            return response;
+
+        } catch (error) {
+
+            return rejectWithValue(
                 error.response?.data?.message ||
                 "Registration failed"
             );
@@ -50,34 +116,27 @@ export const registerUser = createAsyncThunk(
 );
 
 
-// Logout
-export const logoutUser = createAsyncThunk(
-    "auth/logout",
-    async (_, thunkAPI) => {
-
-        try {
-
-            await authService.logout();
-
-            return true;
-
-        } catch (error) {
-
-            return thunkAPI.rejectWithValue(
-                "Logout failed"
-            );
-        }
-    }
-);
-
+// ============================================
+// INITIAL STATE
+// ============================================
 
 const initialState = {
+
     user: null,
+
+    isAuthenticated: false,
+
     loading: false,
+
+    initializing: true,
+
     error: null,
-    isAuthenticated: false
 };
 
+
+// ============================================
+// SLICE
+// ============================================
 
 const authSlice = createSlice({
 
@@ -89,18 +148,29 @@ const authSlice = createSlice({
 
         clearError: (state) => {
             state.error = null;
-        }
+        },
 
+        resetAuth: (state) => {
+            state.user = null;
+            state.isAuthenticated = false;
+            state.loading = false;
+            state.initializing = false;
+        },
     },
+
 
     extraReducers: (builder) => {
 
+        // ====================================
+        // LOGIN
+        // ====================================
+
         builder
 
-            // LOGIN
             .addCase(
                 loginUser.pending,
                 (state) => {
+
                     state.loading = true;
                     state.error = null;
                 }
@@ -116,6 +186,8 @@ const authSlice = createSlice({
                         action.payload.user;
 
                     state.isAuthenticated = true;
+
+                    state.initializing = false;
                 }
             )
 
@@ -127,15 +199,108 @@ const authSlice = createSlice({
 
                     state.error =
                         action.payload;
+
+                    state.isAuthenticated = false;
+
+                    state.user = null;
+
+                    state.initializing = false;
+                }
+            );
+
+
+        // ====================================
+        // CHECK AUTH
+        // ====================================
+
+        builder
+
+            .addCase(
+                checkAuth.pending,
+                (state) => {
+
+                    state.initializing = true;
                 }
             )
 
+            .addCase(
+                checkAuth.fulfilled,
+                (state, action) => {
 
-            // REGISTER
+                    state.user =
+                        action.payload.user;
+
+                    state.isAuthenticated = true;
+
+                    state.initializing = false;
+
+                    state.error = null;
+                }
+            )
+
+            .addCase(
+                checkAuth.rejected,
+                (state) => {
+
+                    state.user = null;
+
+                    state.isAuthenticated = false;
+
+                    state.initializing = false;
+                }
+            );
+
+
+        // ====================================
+        // LOGOUT
+        // ====================================
+
+        builder
+
+            .addCase(
+                logoutUser.fulfilled,
+                (state) => {
+
+                    state.user = null;
+
+                    state.isAuthenticated = false;
+
+                    state.loading = false;
+
+                    state.initializing = false;
+                }
+            )
+
+            .addCase(
+                logoutUser.rejected,
+                (state) => {
+
+                    // Even if backend logout fails,
+                    // remove user from frontend state.
+
+                    state.user = null;
+
+                    state.isAuthenticated = false;
+
+                    state.loading = false;
+
+                    state.initializing = false;
+                }
+            );
+
+
+        // ====================================
+        // REGISTER
+        // ====================================
+
+        builder
+
             .addCase(
                 registerUser.pending,
                 (state) => {
+
                     state.loading = true;
+
                     state.error = null;
                 }
             )
@@ -146,10 +311,15 @@ const authSlice = createSlice({
 
                     state.loading = false;
 
-                    state.user =
-                        action.payload.user;
+                    if (action.payload.user) {
 
-                    state.isAuthenticated = true;
+                        state.user =
+                            action.payload.user;
+
+                        state.isAuthenticated = true;
+                    }
+
+                    state.initializing = false;
                 }
             )
 
@@ -161,29 +331,17 @@ const authSlice = createSlice({
 
                     state.error =
                         action.payload;
-                }
-            )
 
-
-            // LOGOUT
-            .addCase(
-                logoutUser.fulfilled,
-                (state) => {
-
-                    state.user = null;
-
-                    state.isAuthenticated =
-                        false;
-
-                    state.loading = false;
+                    state.initializing = false;
                 }
             );
-    }
+    },
 });
 
 
 export const {
-    clearError
+    clearError,
+    resetAuth,
 } = authSlice.actions;
 
 

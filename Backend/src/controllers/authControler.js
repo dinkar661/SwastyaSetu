@@ -80,25 +80,29 @@ const login = async (req, res) => {
     const token = jwt.sign(
       {
         id: user._id,
+        name: user.name,
+        email: user.email,
         role: user.role
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "7d"
+        expiresIn: "1d"
       }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax"
+      secure: "false",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000
     });
 
-    res.json({
+    res.status(200).json({
       message: "Login successful",
       user: {
         id: user._id,
         name: user.name,
+        email: user.email,
         role: user.role
       }
     });
@@ -112,32 +116,69 @@ const login = async (req, res) => {
 
 // logout
 
-const logout = async (req,res)=>{
+const logout = async (req, res) => {
 
-    try{
-       // validate the token
-       // Token add kar dunga Redis ke blocklist mai
-       const {token} = req.cookies;
+    try {
 
-       const payload = jwt.decode(token);
+        const token = req.cookies.token;
 
-       await redisClient.set(`token:${token}`,'Blocked');
-       await redisClient.expireAt(`token:${token}`,payload.exp);
-       // Cookies ko clear kar dena.....
+        if (token) {
 
-       res.cookie("token",null,{expires: new Date(Date.now())});
+            await redisClient.set(
+                `blacklist:${token}`,
+                "true",
+                {
+                    EX: 24 * 60 * 60
+                }
+            );
+        }
 
-       res.send("Logged Out Successfully");
-        
+
+        res.clearCookie(
+            "token",
+            {
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax"
+            }
+        );
+
+
+        res.status(200).json({
+            message: "Logout successful"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
     }
-    catch(err){
-        res.status(503).send("Error: "+err);
+};
+
+const getMe = async (req, res) => {
+
+    try {
+
+        res.status(200).json({
+
+            user: req.user
+
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
     }
-}
+};
 
 
 module.exports = {
     register,
     login,
-    logout
+    logout,
+    getMe
 };
