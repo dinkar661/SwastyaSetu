@@ -1,348 +1,265 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import {
-    loginUser as loginAPI,
+    loginUser,
+    registerUser,
     getCurrentUser,
-    logoutUser as logoutAPI,
-    registerUser as registerAPI,
+    logoutUser,
+    googleLogin,
 } from "../services/authService";
 
 
-// ============================================
 // LOGIN
-// ============================================
-
-export const loginUser = createAsyncThunk(
-    "auth/loginUser",
-
+export const login = createAsyncThunk(
+    "auth/login",
     async (data, { rejectWithValue }) => {
-
         try {
-
-            const response =
-                await loginAPI(data);
-
+            const response = await loginUser(data);
             return response;
-
         } catch (error) {
-
             return rejectWithValue(
-                error.response?.data?.message ||
-                "Login failed"
+                error.response?.data?.message || "Login failed"
             );
         }
     }
 );
 
 
-// ============================================
-// CHECK CURRENT USER
-// ============================================
+// REGISTER
+export const register = createAsyncThunk(
+    "auth/register",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await registerUser(data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data?.message || "Registration failed"
+            );
+        }
+    }
+);
 
+
+// CHECK LOGIN AFTER REFRESH
 export const checkAuth = createAsyncThunk(
     "auth/checkAuth",
-
     async (_, { rejectWithValue }) => {
-
         try {
-
-            const response =
-                await getCurrentUser();
-
+            const response = await getCurrentUser();
             return response;
-
         } catch (error) {
-
             return rejectWithValue(
-                error.response?.data?.message ||
-                "Not authenticated"
+                error.response?.data?.message || "Not authenticated"
             );
         }
     }
 );
 
 
-// ============================================
 // LOGOUT
-// ============================================
-
-export const logoutUser = createAsyncThunk(
-    "auth/logoutUser",
-
+export const logout = createAsyncThunk(
+    "auth/logout",
     async (_, { rejectWithValue }) => {
-
         try {
-
-            const response =
-                await logoutAPI();
-
+            const response = await logoutUser();
             return response;
-
         } catch (error) {
-
             return rejectWithValue(
-                error.response?.data?.message ||
-                "Logout failed"
+                error.response?.data?.message || "Logout failed"
             );
         }
     }
 );
 
 
-// ============================================
-// REGISTER
-// ============================================
-
-export const registerUser = createAsyncThunk(
-    "auth/registerUser",
-
+// GOOGLE LOGIN
+export const googleLoginThunk = createAsyncThunk(
+    "auth/googleLogin",
     async (data, { rejectWithValue }) => {
-
         try {
-
-            const response =
-                await registerAPI(data);
-
+            const response = await googleLogin(data);
             return response;
-
         } catch (error) {
-
             return rejectWithValue(
-                error.response?.data?.message ||
-                "Registration failed"
+                error.response?.data?.message || "Google login failed"
             );
         }
     }
 );
 
-
-// ============================================
-// INITIAL STATE
-// ============================================
 
 const initialState = {
-
     user: null,
-
     isAuthenticated: false,
 
     loading: false,
 
+    // VERY IMPORTANT
     initializing: true,
 
     error: null,
 };
 
 
-// ============================================
-// SLICE
-// ============================================
-
 const authSlice = createSlice({
-
     name: "auth",
 
     initialState,
 
     reducers: {
-
         clearError: (state) => {
             state.error = null;
         },
-
-        resetAuth: (state) => {
-            state.user = null;
-            state.isAuthenticated = false;
-            state.loading = false;
-            state.initializing = false;
-        },
     },
-
 
     extraReducers: (builder) => {
 
-        // ====================================
+        // =========================
         // LOGIN
-        // ====================================
+        // =========================
 
         builder
+            .addCase(login.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
 
-            .addCase(
-                loginUser.pending,
-                (state) => {
+            .addCase(login.fulfilled, (state, action) => {
+                state.loading = false;
 
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
+                state.user = action.payload.user;
 
-            .addCase(
-                loginUser.fulfilled,
-                (state, action) => {
+                state.isAuthenticated = true;
 
-                    state.loading = false;
+                state.error = null;
+            })
 
-                    state.user =
-                        action.payload.user;
+            .addCase(login.rejected, (state, action) => {
+                state.loading = false;
 
-                    state.isAuthenticated = true;
+                state.user = null;
 
-                    state.initializing = false;
-                }
-            )
+                state.isAuthenticated = false;
 
-            .addCase(
-                loginUser.rejected,
-                (state, action) => {
-
-                    state.loading = false;
-
-                    state.error =
-                        action.payload;
-
-                    state.isAuthenticated = false;
-
-                    state.user = null;
-
-                    state.initializing = false;
-                }
-            );
+                state.error = action.payload;
+            });
 
 
-        // ====================================
-        // CHECK AUTH
-        // ====================================
-
-        builder
-
-            .addCase(
-                checkAuth.pending,
-                (state) => {
-
-                    state.initializing = true;
-                }
-            )
-
-            .addCase(
-                checkAuth.fulfilled,
-                (state, action) => {
-
-                    state.user =
-                        action.payload.user;
-
-                    state.isAuthenticated = true;
-
-                    state.initializing = false;
-
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                checkAuth.rejected,
-                (state) => {
-
-                    state.user = null;
-
-                    state.isAuthenticated = false;
-
-                    state.initializing = false;
-                }
-            );
-
-
-        // ====================================
-        // LOGOUT
-        // ====================================
-
-        builder
-
-            .addCase(
-                logoutUser.fulfilled,
-                (state) => {
-
-                    state.user = null;
-
-                    state.isAuthenticated = false;
-
-                    state.loading = false;
-
-                    state.initializing = false;
-                }
-            )
-
-            .addCase(
-                logoutUser.rejected,
-                (state) => {
-
-                    // Even if backend logout fails,
-                    // remove user from frontend state.
-
-                    state.user = null;
-
-                    state.isAuthenticated = false;
-
-                    state.loading = false;
-
-                    state.initializing = false;
-                }
-            );
-
-
-        // ====================================
+        // =========================
         // REGISTER
-        // ====================================
+        // =========================
 
         builder
+            .addCase(register.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
 
-            .addCase(
-                registerUser.pending,
-                (state) => {
+            .addCase(register.fulfilled, (state, action) => {
+                state.loading = false;
 
-                    state.loading = true;
+                state.user = action.payload.user;
 
-                    state.error = null;
-                }
-            )
+                state.isAuthenticated = true;
 
-            .addCase(
-                registerUser.fulfilled,
-                (state, action) => {
+                state.error = null;
+            })
 
-                    state.loading = false;
+            .addCase(register.rejected, (state, action) => {
+                state.loading = false;
 
-                    if (action.payload.user) {
+                state.error = action.payload;
+            });
 
-                        state.user =
-                            action.payload.user;
 
-                        state.isAuthenticated = true;
-                    }
+        // =========================
+        // CHECK AUTH
+        // =========================
 
-                    state.initializing = false;
-                }
-            )
+        builder
+            .addCase(checkAuth.pending, (state) => {
+                state.initializing = true;
+            })
 
-            .addCase(
-                registerUser.rejected,
-                (state, action) => {
+            .addCase(checkAuth.fulfilled, (state, action) => {
+                state.initializing = false;
 
-                    state.loading = false;
+                state.user = action.payload.user;
 
-                    state.error =
-                        action.payload;
+                state.isAuthenticated = true;
 
-                    state.initializing = false;
-                }
-            );
+                state.error = null;
+            })
+
+            .addCase(checkAuth.rejected, (state) => {
+                state.initializing = false;
+
+                state.user = null;
+
+                state.isAuthenticated = false;
+            });
+
+
+        // =========================
+        // LOGOUT
+        // =========================
+
+        builder
+            .addCase(logout.pending, (state) => {
+                state.loading = true;
+            })
+
+            .addCase(logout.fulfilled, (state) => {
+                state.loading = false;
+
+                state.user = null;
+
+                state.isAuthenticated = false;
+
+                state.error = null;
+            })
+
+            .addCase(logout.rejected, (state) => {
+                state.loading = false;
+
+                // Even if backend logout fails,
+                // remove user from frontend.
+                state.user = null;
+
+                state.isAuthenticated = false;
+            });
+
+
+        // =========================
+        // GOOGLE LOGIN
+        // =========================
+
+        builder
+            .addCase(googleLoginThunk.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+
+            .addCase(googleLoginThunk.fulfilled, (state, action) => {
+                state.loading = false;
+
+                state.user = action.payload.user;
+
+                state.isAuthenticated = true;
+
+                state.error = null;
+            })
+
+            .addCase(googleLoginThunk.rejected, (state, action) => {
+                state.loading = false;
+
+                state.error = action.payload;
+            });
     },
 });
 
 
-export const {
-    clearError,
-    resetAuth,
-} = authSlice.actions;
-
+export const { clearError } = authSlice.actions;
 
 export default authSlice.reducer;

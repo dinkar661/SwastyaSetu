@@ -1,27 +1,28 @@
 import {
     BrowserRouter,
     Routes,
-    Route
+    Route,
+    Navigate,
 } from "react-router-dom";
 
 
-import Login from "../pages/Login";
-import Signup from "../pages/Signup";
-
 import ProtectedRoute from "../components/ProtectedRoute";
+
 import RoleRoute from "../components/RoleRoute";
 
-import PatientDashboard
-    from "../pages/patient/PatientDashboard";
 
-import HealthWorkerDashboard
-    from "../pages/healthworker/HealthWorkerDashboard";
+import Login from "../pages/Login";
 
-import DoctorDashboard
-    from "../pages/doctor/DoctorDashboard";
+import Signup from "../pages/Signup";
 
-import AdminDashboard
-    from "../pages/admin/AdminDashboard";
+
+import PatientDashboard from "../pages/patient/PatientDashboard";
+
+import HealthWorkerDashboard from "../pages/healthworker/HealthWorkerDashboard";
+
+import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+
+import AdminDashboard from "../pages/admin/AdminDashboard";
 
 
 const AppRoutes = () => {
@@ -45,27 +46,22 @@ const AppRoutes = () => {
                 />
 
 
-                {/* AUTHENTICATED */}
+                {/* ALL AUTHENTICATED USERS */}
 
                 <Route element={<ProtectedRoute />}>
 
+
                     {/* PATIENT */}
 
-                    <Route
-                        element={
-                            <RoleRoute
-                                allowedRoles={[
-                                    "PATIENT"
-                                ]}
-                            />
-                        }
-                    >
+                    <Route element={
+                        <RoleRoute
+                            allowedRoles={["PATIENT"]}
+                        />
+                    }>
 
                         <Route
                             path="/patient/dashboard"
-                            element={
-                                <PatientDashboard />
-                            }
+                            element={<PatientDashboard />}
                         />
 
                     </Route>
@@ -73,15 +69,11 @@ const AppRoutes = () => {
 
                     {/* HEALTH WORKER */}
 
-                    <Route
-                        element={
-                            <RoleRoute
-                                allowedRoles={[
-                                    "HEALTH_WORKER"
-                                ]}
-                            />
-                        }
-                    >
+                    <Route element={
+                        <RoleRoute
+                            allowedRoles={["HEALTH_WORKER"]}
+                        />
+                    }>
 
                         <Route
                             path="/healthworker/dashboard"
@@ -95,21 +87,15 @@ const AppRoutes = () => {
 
                     {/* DOCTOR */}
 
-                    <Route
-                        element={
-                            <RoleRoute
-                                allowedRoles={[
-                                    "DOCTOR"
-                                ]}
-                            />
-                        }
-                    >
+                    <Route element={
+                        <RoleRoute
+                            allowedRoles={["DOCTOR"]}
+                        />
+                    }>
 
                         <Route
                             path="/doctor/dashboard"
-                            element={
-                                <DoctorDashboard />
-                            }
+                            element={<DoctorDashboard />}
                         />
 
                     </Route>
@@ -117,26 +103,71 @@ const AppRoutes = () => {
 
                     {/* ADMIN */}
 
-                    <Route
-                        element={
-                            <RoleRoute
-                                allowedRoles={[
-                                    "ADMIN"
-                                ]}
-                            />
-                        }
-                    >
+                    <Route element={
+                        <RoleRoute
+                            allowedRoles={["ADMIN"]}
+                        />
+                    }>
 
                         <Route
                             path="/admin/dashboard"
-                            element={
-                                <AdminDashboard />
-                            }
+                            element={<AdminDashboard />}
                         />
 
                     </Route>
 
+
                 </Route>
+
+
+                {/* UNAUTHORIZED */}
+
+                <Route
+                    path="/unauthorized"
+                    element={
+                        <div className="min-h-screen flex items-center justify-center">
+
+                            <div className="text-center">
+
+                                <h1 className="text-4xl font-bold">
+                                    403
+                                </h1>
+
+                                <p>
+                                    You are not authorized to access this page.
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+                />
+
+
+                {/* DEFAULT */}
+
+                <Route
+                    path="/"
+                    element={
+                        <Navigate
+                            to="/login"
+                            replace
+                        />
+                    }
+                />
+
+
+                {/* WRONG URL */}
+
+                <Route
+                    path="*"
+                    element={
+                        <Navigate
+                            to="/"
+                            replace
+                        />
+                    }
+                />
 
             </Routes>
 

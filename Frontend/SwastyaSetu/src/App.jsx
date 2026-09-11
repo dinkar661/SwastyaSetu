@@ -1,12 +1,8 @@
 import { useEffect } from "react";
 
-import {
-    useDispatch
-} from "react-redux";
+import { useDispatch } from "react-redux";
 
-import {
-    checkAuth
-} from "./store/authSlice";
+import { checkAuth } from "./store/authSlice";
 
 import AppRoutes from "./routes/AppRoutes";
 
@@ -23,9 +19,7 @@ function App() {
     }, [dispatch]);
 
 
-    return (
-        <AppRoutes />
-    );
+    return <AppRoutes />;
 }
 
 

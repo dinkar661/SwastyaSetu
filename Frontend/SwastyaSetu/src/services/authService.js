@@ -1,43 +1,26 @@
 import api from "./api";
 
-
-// Login
 export const loginUser = async (data) => {
-    const response = await api.post(
-        "/auth/login",
-        data
-    );
-
+    const response = await api.post("/auth/login", data);
     return response.data;
 };
 
-
-// Get currently logged-in user
-export const getCurrentUser = async () => {
-    const response = await api.get(
-        "/auth/me"
-    );
-
-    return response.data;
-};
-
-
-// Logout
-export const logoutUser = async () => {
-    const response = await api.post(
-        "/auth/logout"
-    );
-
-    return response.data;
-};
-
-
-// Register
 export const registerUser = async (data) => {
-    const response = await api.post(
-        "/auth/register",
-        data
-    );
+    const response = await api.post("/auth/register", data);
+    return response.data;
+};
 
+export const getCurrentUser = async () => {
+    const response = await api.get("/auth/me");
+    return response.data;
+};
+
+export const logoutUser = async () => {
+    const response = await api.post("/auth/logout");
+    return response.data;
+};
+
+export const googleLogin = async (data) => {
+    const response = await api.post("/auth/googleLogin", data);
     return response.data;
 };

@@ -7,10 +7,8 @@ const ProtectedRoute = () => {
 
     const {
         isAuthenticated,
-        initializing
-    } = useSelector(
-        (state) => state.auth
-    );
+        initializing,
+    } = useSelector((state) => state.auth);
 
 
     // Wait for /auth/me
