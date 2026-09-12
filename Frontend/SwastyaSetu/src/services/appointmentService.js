@@ -1,6 +1,7 @@
 import api from "./api";
 
 
+// Patient creates appointment
 export const createAppointment = async (data) => {
 
     const response = await api.post(
@@ -12,6 +13,7 @@ export const createAppointment = async (data) => {
 };
 
 
+// Patient gets own appointments
 export const getMyAppointments = async () => {
 
     const response = await api.get(
@@ -22,6 +24,7 @@ export const getMyAppointments = async () => {
 };
 
 
+// Doctor gets queue
 export const getDoctorQueue = async () => {
 
     const response = await api.get(
@@ -32,6 +35,7 @@ export const getDoctorQueue = async () => {
 };
 
 
+// Update appointment
 export const updateAppointmentStatus = async (
     id,
     status

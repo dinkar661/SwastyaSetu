@@ -1,4 +1,5 @@
 const Appointment = require("../models/appointment.js");
+const Patient = require("../models/patient.js");
 
 // Create a new appointment
 const createAppointment = async (req,res) => {
@@ -69,7 +70,52 @@ const getDoctorQueue = async (req,res) => {
   }
 };
 
+
+const getMyAppointments = async (req, res) => {
+
+    try {
+
+        const patient = await Patient.findOne({
+            userId: req.user.id
+        });
+
+
+        if (!patient) {
+
+            return res.status(404).json({
+                message: "Patient profile not found"
+            });
+
+        }
+
+
+        const appointments =
+            await Appointment.find({
+                patientId: patient._id
+            })
+                .populate("doctorId", "name email")
+                .populate("facilityId")
+                .sort({ date: 1 });
+
+
+        res.json({
+            appointments
+        });
+
+    }
+    catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
+
 module.exports = {
   createAppointment,
-  getDoctorQueue
+  getDoctorQueue,
+  getMyAppointments
 };

@@ -1,6 +1,7 @@
 import api from "./api";
 
 
+// Create referral
 export const createReferral = async (data) => {
 
     const response = await api.post(
@@ -12,6 +13,7 @@ export const createReferral = async (data) => {
 };
 
 
+// Patient's referrals
 export const getMyReferrals = async () => {
 
     const response = await api.get(
@@ -22,6 +24,7 @@ export const getMyReferrals = async () => {
 };
 
 
+// Doctor's referrals
 export const getDoctorReferrals = async () => {
 
     const response = await api.get(
@@ -32,6 +35,7 @@ export const getDoctorReferrals = async () => {
 };
 
 
+// Update referral status
 export const updateReferralStatus = async (
     id,
     status

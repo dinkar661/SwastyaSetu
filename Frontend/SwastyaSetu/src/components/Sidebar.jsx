@@ -27,32 +27,32 @@ const Sidebar = () => {
             <ul className="menu gap-2">
 
                 {user.role === "PATIENT" && (
-                    <>
-                        <li>
-                            <Link to="/patient/dashboard">
-                                Dashboard
-                            </Link>
-                        </li>
+                <>
+                    <li>
+                        <Link to="/patient/dashboard">
+                            Dashboard
+                        </Link>
+                    </li>
 
-                        <li>
-                            <Link to="/patient/dashboard">
-                                Medical Records
-                            </Link>
-                        </li>
+                    <li>
+                        <Link to="/patient/medical-records">
+                            Medical Records
+                        </Link>
+                    </li>
 
-                        <li>
-                            <Link to="/patient/dashboard">
-                                Appointments
-                            </Link>
-                        </li>
+                    <li>
+                        <Link to="/patient/appointments">
+                            Appointments
+                        </Link>
+                    </li>
 
-                        <li>
-                            <Link to="/patient/dashboard">
-                                Referrals
-                            </Link>
-                        </li>
-                    </>
-                )}
+                    <li>
+                        <Link to="/patient/referrals">
+                            Referrals
+                        </Link>
+                    </li>
+                </>
+            )}
 
 
                 {user.role === "HEALTH_WORKER" && (

@@ -1,18 +1,40 @@
 const express = require("express");
 
-const { createAppointment, getDoctorQueue } = require("../controllers/appointmentControler.js");
+const AppointmentRouter = express.Router();
 
-const { protect } = require("../middleware/authMiddleware.js");
+const {
+    createAppointment,
+    getDoctorQueue,
+    getMyAppointments
+} = require("../controllers/appointmentControler");
 
-const appointmentrouter = express.Router();
+const { protect } = require("../middleware/authMiddleware");
 
-
-// Book appointment
-appointmentrouter.post("/",protect,createAppointment);
-
-
-// Doctor queue
-appointmentrouter.get("/doctor",protect,getDoctorQueue);
+const { authorize } = require("../middleware/roleMiddleware");
 
 
-module.exports = appointmentrouter;
+AppointmentRouter.post(
+    "/",
+    protect,
+    authorize("PATIENT", "HEALTH_WORKER"),
+    createAppointment
+);
+
+
+AppointmentRouter.get(
+    "/my",
+    protect,
+    authorize("PATIENT"),
+    getMyAppointments
+);
+
+
+AppointmentRouter.get(
+    "/doctor",
+    protect,
+    authorize("DOCTOR"),
+    getDoctorQueue
+);
+
+
+module.exports = AppointmentRouter;

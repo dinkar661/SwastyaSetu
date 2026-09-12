@@ -17,6 +17,9 @@ import Signup from "../pages/Signup";
 
 
 import PatientDashboard from "../pages/patient/PatientDashboard";
+import MedicalRecords from "../pages/patient/MedicalRecords";
+import Appointments from "../pages/patient/Appointments";
+import Referrals from "../pages/patient/Referrals";
 
 import HealthWorkerDashboard from "../pages/healthworker/HealthWorkerDashboard";
 
@@ -35,15 +38,9 @@ const AppRoutes = () => {
 
                 {/* PUBLIC */}
 
-                <Route
-                    path="/login"
-                    element={<Login />}
-                />
+                <Route path="/login" element={<Login />} />
 
-                <Route
-                    path="/signup"
-                    element={<Signup />}
-                />
+                <Route path="/signup" element={<Signup />} />
 
 
                 {/* ALL AUTHENTICATED USERS */}
@@ -53,34 +50,37 @@ const AppRoutes = () => {
 
                     {/* PATIENT */}
 
-                    <Route element={
-                        <RoleRoute
-                            allowedRoles={["PATIENT"]}
-                        />
-                    }>
+                    <Route element={ <RoleRoute allowedRoles={["PATIENT"]} /> }>
 
-                        <Route
-                            path="/patient/dashboard"
-                            element={<PatientDashboard />}
-                        />
+                            <Route
+                                path="/patient/dashboard"
+                                element={<PatientDashboard />}
+                            />
+
+                            <Route
+                                path="/patient/medical-records"
+                                element={<MedicalRecords />}
+                            />
+
+                            <Route
+                                path="/patient/appointments"
+                                element={<Appointments />}
+                            />
+
+                            <Route
+                                path="/patient/referrals"
+                                element={<Referrals />}
+                            />
+                        
 
                     </Route>
 
 
                     {/* HEALTH WORKER */}
 
-                    <Route element={
-                        <RoleRoute
-                            allowedRoles={["HEALTH_WORKER"]}
-                        />
-                    }>
+                    <Route element={ <RoleRoute allowedRoles={["HEALTH_WORKER"]} /> }>
 
-                        <Route
-                            path="/healthworker/dashboard"
-                            element={
-                                <HealthWorkerDashboard />
-                            }
-                        />
+                        <Route path="/healthworker/dashboard" element={ <HealthWorkerDashboard /> } />
 
                     </Route>
 
