@@ -119,8 +119,6 @@ const Appointments = () => {
 
             await createAppointment({
 
-                patientId: user.patientId,
-
                 doctorId: formData.doctorId,
 
                 facilityId:

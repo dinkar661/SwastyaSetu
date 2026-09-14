@@ -1,11 +1,15 @@
 const Appointment = require("../models/appointment.js");
 const Patient = require("../models/patient.js");
+const Facility = require("../models/facility.js");
 
 // Create a new appointment
-const createAppointment = async (req,res) => {
+
+const createAppointment = async (req, res) => {
+
   try {
+
+      // console.log("Hello");
     const {
-      patientId,
       doctorId,
       facilityId,
       date,
@@ -13,6 +17,20 @@ const createAppointment = async (req,res) => {
       reason
     } = req.body;
 
+    // Find patient profile using logged-in user
+    const patient = await Patient.findOne({
+      userId: req.user._id
+    });
+
+
+    if (!patient) {
+      return res.status(404).json({
+        message: "Patient profile not found"
+      });
+
+    }
+
+    // console.log("Hello2");
     const existing =
       await Appointment.countDocuments({
         doctorId,
@@ -21,7 +39,7 @@ const createAppointment = async (req,res) => {
 
     const appointment =
       await Appointment.create({
-        patientId,
+        patientId: patient._id,
         doctorId,
         facilityId,
         date,
@@ -30,12 +48,12 @@ const createAppointment = async (req,res) => {
         tokenNumber: existing + 1
       });
 
-    res.status(201).json({
-      message: "Appointment booked",
-      appointment
-    });
-  } 
+      
+
+    res.status(201).json({ message: "Appointment booked", appointment });
+  }
   catch (error) {
+    console.log("Create appointment error:", error);
     res.status(500).json({
       message: error.message
     });
@@ -74,9 +92,9 @@ const getDoctorQueue = async (req,res) => {
 const getMyAppointments = async (req, res) => {
 
     try {
-
+        console.log("Hello");
         const patient = await Patient.findOne({
-            userId: req.user.id
+            userId: req.user._id
         });
 
 

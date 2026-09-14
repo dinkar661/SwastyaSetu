@@ -5,7 +5,7 @@ import api from "./api";
 export const createAppointment = async (data) => {
 
     const response = await api.post(
-        "/appointments",
+        "/appointments/",
         data
     );
 

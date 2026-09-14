@@ -116,7 +116,16 @@ const Signup = () => {
                             onChange={handleChange}
                             required
                         />
-
+                        
+                        <input
+                            type="text"
+                            name="phone"
+                            placeholder="Phone Number"
+                            className="input input-bordered w-full"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            required
+                        />
 
                         <input
                             type="email"
