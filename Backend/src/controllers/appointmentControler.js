@@ -92,7 +92,7 @@ const getDoctorQueue = async (req,res) => {
 const getMyAppointments = async (req, res) => {
 
     try {
-        console.log("Hello");
+        // console.log("Hello");
         const patient = await Patient.findOne({
             userId: req.user._id
         });
