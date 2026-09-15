@@ -1,22 +1,14 @@
 import { useEffect, useState } from "react";
 
-import { useSelector } from "react-redux";
-
 import Navbar from "../../components/Navbar";
-
 import Sidebar from "../../components/Sidebar";
 
 import {
-    getMedicalRecords
+    getMyMedicalRecords
 } from "../../services/medicalRecordService";
 
 
 const MedicalRecords = () => {
-
-    const { user } = useSelector(
-        (state) => state.auth
-    );
-
 
     const [records, setRecords] = useState([]);
 
@@ -29,24 +21,10 @@ const MedicalRecords = () => {
 
         const loadRecords = async () => {
 
-            if (!user?.patientId) {
-
-                setError(
-                    "Patient profile not found."
-                );
-
-                setLoading(false);
-
-                return;
-            }
-
-
             try {
 
                 const data =
-                    await getMedicalRecords(
-                        user.patientId
-                    );
+                    await getMyMedicalRecords();
 
 
                 const recordList =
@@ -86,7 +64,7 @@ const MedicalRecords = () => {
 
         loadRecords();
 
-    }, [user]);
+    }, []);
 
 
     return (
@@ -120,7 +98,9 @@ const MedicalRecords = () => {
                     {error && (
 
                         <div className="alert alert-error mb-6">
+
                             {error}
+
                         </div>
 
                     )}
@@ -130,19 +110,19 @@ const MedicalRecords = () => {
                         !error &&
                         records.length === 0 && (
 
-                            <div className="bg-base-100 p-8 rounded-box shadow text-center">
+                        <div className="bg-base-100 p-8 rounded-box shadow text-center">
 
-                                <h2 className="text-xl font-bold">
-                                    No Medical Records
-                                </h2>
+                            <h2 className="text-xl font-bold">
+                                No Medical Records
+                            </h2>
 
-                                <p className="opacity-60 mt-2">
-                                    Your medical records will appear here after a consultation.
-                                </p>
+                            <p className="opacity-60 mt-2">
+                                Your medical records will appear here after a consultation.
+                            </p>
 
-                            </div>
+                        </div>
 
-                        )}
+                    )}
 
 
                     <div className="space-y-6">
@@ -156,6 +136,7 @@ const MedicalRecords = () => {
 
                                 <div className="card-body">
 
+
                                     <div className="flex justify-between">
 
                                         <h2 className="card-title">
@@ -164,8 +145,10 @@ const MedicalRecords = () => {
 
 
                                         <span className="badge badge-primary">
+
                                             {record.visitType ||
                                                 "IN_PERSON"}
+
                                         </span>
 
                                     </div>
@@ -190,6 +173,7 @@ const MedicalRecords = () => {
                                         <h3 className="font-bold">
                                             Symptoms
                                         </h3>
+
 
                                         {record.symptoms &&
                                         record.symptoms.length > 0 ? (
@@ -248,7 +232,7 @@ const MedicalRecords = () => {
 
 
                                     {record.prescription &&
-                                        record.prescription.length > 0 && (
+                                    record.prescription.length > 0 && (
 
                                         <div className="mt-4">
 
@@ -265,11 +249,17 @@ const MedicalRecords = () => {
 
                                                         <tr>
 
-                                                            <th>Medicine</th>
+                                                            <th>
+                                                                Medicine
+                                                            </th>
 
-                                                            <th>Dosage</th>
+                                                            <th>
+                                                                Dosage
+                                                            </th>
 
-                                                            <th>Duration</th>
+                                                            <th>
+                                                                Duration
+                                                            </th>
 
                                                         </tr>
 
@@ -310,7 +300,6 @@ const MedicalRecords = () => {
 
                                     )}
 
-
                                 </div>
 
                             </div>
@@ -324,7 +313,9 @@ const MedicalRecords = () => {
             </div>
 
         </div>
+
     );
+
 };
 
 

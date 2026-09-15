@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { createMedicalRecord, getPatientRecords } = require("../controllers/medicalRecordsControler.js");
+const { createMedicalRecord,  getMyMedicalRecords } = require("../controllers/medicalRecordsControler.js");
 
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -13,8 +13,8 @@ const recordrouter = express.Router();
 recordrouter.post("/",protect,authorize("DOCTOR"),createMedicalRecord);
 
 
-// Get patient's medical records
-recordrouter.get("/:patientId",protect,getPatientRecords);
+// Logged-in patient gets their own records
+recordrouter.get("/my",protect,authorize("PATIENT"),getMyMedicalRecords);
 
 
 module.exports = recordrouter;

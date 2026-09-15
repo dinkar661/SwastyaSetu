@@ -1,18 +1,33 @@
 import api from "./api";
 
 
-// Get all medical records of a patient
-export const getMedicalRecords = async (patientId) => {
+// Get logged-in patient's medical records
+
+export const getMyMedicalRecords = async () => {
 
     const response = await api.get(
-        `/records/${patientId}`
+        "/records/my"
     );
 
     return response.data;
 };
 
 
+// // Get a specific patient's medical records
+// // Used by Doctor / Health Worker
+
+// export const getMedicalRecords = async (patientId) => {
+
+//     const response = await api.get(
+//         `/records/patient/${patientId}`
+//     );
+
+//     return response.data;
+// };
+
+
 // Create medical record
+// Used by Doctor
 export const createMedicalRecord = async (data) => {
 
     const response = await api.post(
