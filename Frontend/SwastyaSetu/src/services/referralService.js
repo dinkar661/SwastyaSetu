@@ -5,7 +5,7 @@ import api from "./api";
 export const createReferral = async (data) => {
 
     const response = await api.post(
-        "/referrals",
+        "/referrals/",
         data
     );
 

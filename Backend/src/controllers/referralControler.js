@@ -1,5 +1,5 @@
 const Referral = require("../models/referral.js");
-
+const Patient = require("../models/patient.js");
 
 // Create a new referral
 const createReferral = async (req, res) => {
@@ -31,6 +31,44 @@ const createReferral = async (req, res) => {
       message: error.message
     });
   }
+};
+
+
+// Get referrals of logged-in patient
+const getMyReferrals = async (req, res) => {
+    try {
+
+        // Find patient profile using logged-in user
+        const patient = await Patient.findOne({
+            userId: req.user._id
+        });
+
+        if (!patient) {
+            return res.status(404).json({
+                message: "Patient profile not found"
+            });
+        }
+
+        // Find referrals belonging to this patient
+        const referrals = await Referral.find({
+            patientId: patient._id
+        })
+        .sort({
+            createdAt: -1
+        });
+
+        res.status(200).json({
+            referrals
+        });
+
+    } catch (error) {
+
+        console.error("Get my referrals error:", error);
+
+        res.status(500).json({
+            message: error.message
+        });
+    }
 };
 
 
@@ -66,5 +104,6 @@ const updateReferralStatus = async (req,res) => {
 
 module.exports = {
   createReferral,
-  updateReferralStatus
+  updateReferralStatus,
+  getMyReferrals
 };
