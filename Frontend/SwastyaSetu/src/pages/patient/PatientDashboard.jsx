@@ -11,7 +11,7 @@ import {
 } from "../../services/appointmentService";
 
 import {
-    getMedicalRecords,
+    getMyMedicalRecords,
 } from "../../services/medicalRecordService";
 
 import {
@@ -52,7 +52,7 @@ const PatientDashboard = () => {
                 if (user?.patientId) {
 
                     const recordData =
-                        await getMedicalRecords(
+                        await getMyMedicalRecords(
                             user.patientId
                         );
 
