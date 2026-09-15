@@ -93,19 +93,19 @@ const Sidebar = () => {
                         </li>
 
                         <li>
-                            <Link to="/doctor/dashboard">
+                            <Link to="/doctor/queue">
                                 Patient Queue
                             </Link>
                         </li>
 
                         <li>
-                            <Link to="/doctor/dashboard">
+                            <Link to="/doctor/medical-records">
                                 Medical Records
                             </Link>
                         </li>
 
                         <li>
-                            <Link to="/doctor/dashboard">
+                            <Link to="/doctor/referrals">
                                 Referrals
                             </Link>
                         </li>

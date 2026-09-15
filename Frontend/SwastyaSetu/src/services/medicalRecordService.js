@@ -16,14 +16,14 @@ export const getMyMedicalRecords = async () => {
 // // Get a specific patient's medical records
 // // Used by Doctor / Health Worker
 
-// export const getMedicalRecords = async (patientId) => {
+export const getMedicalRecords = async (patientId) => {
 
-//     const response = await api.get(
-//         `/records/patient/${patientId}`
-//     );
+    const response = await api.get(
+        `/records/patient/${patientId}`
+    );
 
-//     return response.data;
-// };
+    return response.data;
+};
 
 
 // Create medical record

@@ -11,21 +11,53 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import RoleRoute from "../components/RoleRoute";
 
 
+// PUBLIC PAGES
+
 import Login from "../pages/Login";
 
 import Signup from "../pages/Signup";
 
 
-import PatientDashboard from "../pages/patient/PatientDashboard";
-import MedicalRecords from "../pages/patient/MedicalRecords";
-import Appointments from "../pages/patient/Appointments";
-import Referrals from "../pages/patient/Referrals";
+// PATIENT PAGES
 
-import HealthWorkerDashboard from "../pages/healthworker/HealthWorkerDashboard";
+import PatientDashboard
+    from "../pages/patient/PatientDashboard";
 
-import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+import MedicalRecords
+    from "../pages/patient/MedicalRecords";
 
-import AdminDashboard from "../pages/admin/AdminDashboard";
+import Appointments
+    from "../pages/patient/Appointments";
+
+import Referrals
+    from "../pages/patient/Referrals";
+
+
+// HEALTH WORKER
+
+import HealthWorkerDashboard
+    from "../pages/healthworker/HealthWorkerDashboard";
+
+
+// DOCTOR PAGES
+
+import DoctorDashboard
+    from "../pages/doctor/DoctorDashboard";
+
+import DoctorQueue
+    from "../pages/doctor/DoctorQueue";
+
+import DoctorMedicalRecords
+    from "../pages/doctor/DoctorMedicalRecords";
+
+import DoctorReferrals
+    from "../pages/doctor/DoctorReferrals";
+
+
+// ADMIN
+
+import AdminDashboard
+    from "../pages/admin/AdminDashboard";
 
 
 const AppRoutes = () => {
@@ -36,78 +68,141 @@ const AppRoutes = () => {
 
             <Routes>
 
+
+                {/* ========================= */}
                 {/* PUBLIC */}
+                {/* ========================= */}
 
-                <Route path="/login" element={<Login />} />
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
 
-                <Route path="/signup" element={<Signup />} />
+                <Route
+                    path="/signup"
+                    element={<Signup />}
+                />
 
 
+                {/* ========================= */}
                 {/* ALL AUTHENTICATED USERS */}
+                {/* ========================= */}
 
                 <Route element={<ProtectedRoute />}>
 
 
+                    {/* ========================= */}
                     {/* PATIENT */}
+                    {/* ========================= */}
 
-                    <Route element={ <RoleRoute allowedRoles={["PATIENT"]} /> }>
-
-                            <Route
-                                path="/patient/dashboard"
-                                element={<PatientDashboard />}
+                    <Route
+                        element={
+                            <RoleRoute
+                                allowedRoles={["PATIENT"]}
                             />
+                        }
+                    >
 
-                            <Route
-                                path="/patient/medical-records"
-                                element={<MedicalRecords />}
-                            />
-
-                            <Route
-                                path="/patient/appointments"
-                                element={<Appointments />}
-                            />
-
-                            <Route
-                                path="/patient/referrals"
-                                element={<Referrals />}
-                            />
-                        
-
-                    </Route>
-
-
-                    {/* HEALTH WORKER */}
-
-                    <Route element={ <RoleRoute allowedRoles={["HEALTH_WORKER"]} /> }>
-
-                        <Route path="/healthworker/dashboard" element={ <HealthWorkerDashboard /> } />
-
-                    </Route>
-
-
-                    {/* DOCTOR */}
-
-                    <Route element={
-                        <RoleRoute
-                            allowedRoles={["DOCTOR"]}
+                        <Route
+                            path="/patient/dashboard"
+                            element={<PatientDashboard />}
                         />
-                    }>
+
+                        <Route
+                            path="/patient/medical-records"
+                            element={<MedicalRecords />}
+                        />
+
+                        <Route
+                            path="/patient/appointments"
+                            element={<Appointments />}
+                        />
+
+                        <Route
+                            path="/patient/referrals"
+                            element={<Referrals />}
+                        />
+
+                    </Route>
+
+
+                    {/* ========================= */}
+                    {/* HEALTH WORKER */}
+                    {/* ========================= */}
+
+                    <Route
+                        element={
+                            <RoleRoute
+                                allowedRoles={["HEALTH_WORKER"]}
+                            />
+                        }
+                    >
+
+                        <Route
+                            path="/healthworker/dashboard"
+                            element={<HealthWorkerDashboard />}
+                        />
+
+                    </Route>
+
+
+                    {/* ========================= */}
+                    {/* DOCTOR */}
+                    {/* ========================= */}
+
+                    <Route
+                        element={
+                            <RoleRoute
+                                allowedRoles={["DOCTOR"]}
+                            />
+                        }
+                    >
+
+                        {/* Doctor Dashboard */}
 
                         <Route
                             path="/doctor/dashboard"
                             element={<DoctorDashboard />}
                         />
 
+
+                        {/* Patient Queue */}
+
+                        <Route
+                            path="/doctor/queue"
+                            element={<DoctorQueue />}
+                        />
+
+
+                        {/* Medical Records */}
+
+                        <Route
+                            path="/doctor/medical-records"
+                            element={<DoctorMedicalRecords />}
+                        />
+
+
+                        {/* Referrals */}
+
+                        <Route
+                            path="/doctor/referrals"
+                            element={<DoctorReferrals />}
+                        />
+
                     </Route>
 
 
+                    {/* ========================= */}
                     {/* ADMIN */}
+                    {/* ========================= */}
 
-                    <Route element={
-                        <RoleRoute
-                            allowedRoles={["ADMIN"]}
-                        />
-                    }>
+                    <Route
+                        element={
+                            <RoleRoute
+                                allowedRoles={["ADMIN"]}
+                            />
+                        }
+                    >
 
                         <Route
                             path="/admin/dashboard"
@@ -120,11 +215,14 @@ const AppRoutes = () => {
                 </Route>
 
 
+                {/* ========================= */}
                 {/* UNAUTHORIZED */}
+                {/* ========================= */}
 
                 <Route
                     path="/unauthorized"
                     element={
+
                         <div className="min-h-screen flex items-center justify-center">
 
                             <div className="text-center">
@@ -140,11 +238,14 @@ const AppRoutes = () => {
                             </div>
 
                         </div>
+
                     }
                 />
 
 
+                {/* ========================= */}
                 {/* DEFAULT */}
+                {/* ========================= */}
 
                 <Route
                     path="/"
@@ -157,7 +258,9 @@ const AppRoutes = () => {
                 />
 
 
+                {/* ========================= */}
                 {/* WRONG URL */}
+                {/* ========================= */}
 
                 <Route
                     path="*"
@@ -168,6 +271,7 @@ const AppRoutes = () => {
                         />
                     }
                 />
+
 
             </Routes>
 
