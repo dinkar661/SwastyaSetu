@@ -18,6 +18,26 @@ const createMedicalRecord = async (req,res) => {
   }
 };
 
+const getMedicalRecords = async (req, res) => {
+  try {
+
+    const records = await MedicalRecord.find({
+      patientId: req.params.patientId
+    })
+      .populate("doctorId", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(records);
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message
+    });
+
+  }
+};
+
 
 const getMyMedicalRecords = async (req, res) => {
   try {
@@ -51,5 +71,6 @@ const getMyMedicalRecords = async (req, res) => {
 
 module.exports = {
   createMedicalRecord,
-  getMyMedicalRecords
+  getMyMedicalRecords,
+  getMedicalRecords
 };

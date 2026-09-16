@@ -11,6 +11,10 @@ import {
 
 const DoctorMedicalRecords = () => {
 
+    // ========================================
+    // PATIENT
+    // ========================================
+
     const [patientId, setPatientId] = useState("");
 
     const [records, setRecords] = useState([]);
@@ -19,26 +23,56 @@ const DoctorMedicalRecords = () => {
 
     const [error, setError] = useState("");
 
+
+    // ========================================
+    // MEDICAL RECORD FORM
+    // ========================================
+
     const [form, setForm] = useState({
 
-        diagnosis: "",
         symptoms: "",
-        prescription: "",
-        notes: "",
+
+        diagnosis: "",
+
         testResults: "",
-        followUpDate: ""
+
+        followUpDate: "",
+
+        notes: "",
+
+        visitType: "IN_PERSON"
 
     });
 
 
+    // ========================================
+    // PRESCRIPTION
+    // ========================================
+
+    const [prescription, setPrescription] = useState([
+
+        {
+            medicine: "",
+            dosage: "",
+            duration: ""
+        }
+
+    ]);
+
+
+    // ========================================
+    // SEARCH PATIENT RECORDS
+    // ========================================
+
     const searchRecords = async () => {
 
-        if (!patientId) {
+        if (!patientId.trim()) {
 
             setError("Please enter patient ID.");
 
             return;
         }
+
 
         try {
 
@@ -46,14 +80,19 @@ const DoctorMedicalRecords = () => {
 
             setLoading(true);
 
+
             const data =
-                await getMedicalRecords(patientId);
+                await getMedicalRecords(
+                    patientId.trim()
+                );
+
 
             setRecords(
                 data.records ||
                 data ||
                 []
             );
+
 
         } catch (error) {
 
@@ -62,10 +101,12 @@ const DoctorMedicalRecords = () => {
                 error
             );
 
+
             setError(
                 error.response?.data?.message ||
                 "Unable to load medical records."
             );
+
 
         } finally {
 
@@ -75,42 +116,157 @@ const DoctorMedicalRecords = () => {
     };
 
 
+    // ========================================
+    // HANDLE NORMAL INPUT
+    // ========================================
+
     const handleChange = (e) => {
 
         setForm({
+
             ...form,
-            [e.target.name]: e.target.value
+
+            [e.target.name]:
+                e.target.value
+
         });
 
     };
 
 
+    // ========================================
+    // HANDLE PRESCRIPTION
+    // ========================================
+
+    const handlePrescriptionChange = (
+        index,
+        field,
+        value
+    ) => {
+
+        const updatedPrescription =
+            [...prescription];
+
+
+        updatedPrescription[index][field] =
+            value;
+
+
+        setPrescription(
+            updatedPrescription
+        );
+    };
+
+
+    // ========================================
+    // ADD MEDICINE
+    // ========================================
+
+    const addMedicine = () => {
+
+        setPrescription([
+
+            ...prescription,
+
+            {
+                medicine: "",
+                dosage: "",
+                duration: ""
+            }
+
+        ]);
+    };
+
+
+    // ========================================
+    // REMOVE MEDICINE
+    // ========================================
+
+    const removeMedicine = (index) => {
+
+        const updatedPrescription =
+            prescription.filter(
+                (_, i) => i !== index
+            );
+
+
+        setPrescription(
+            updatedPrescription
+        );
+    };
+
+
+    // ========================================
+    // SUBMIT
+    // ========================================
+
     const handleSubmit = async (e) => {
 
         e.preventDefault();
+
+
+        if (!patientId.trim()) {
+
+            setError(
+                "Please search for a patient first."
+            );
+
+            return;
+        }
+
 
         try {
 
             setError("");
 
-            const data = await createMedicalRecord({
 
-                patientId,
+            // Remove empty prescription rows
 
-                diagnosis: form.diagnosis,
+            const validPrescription =
+                prescription.filter(
+                    (item) =>
+                        item.medicine.trim() !== ""
+                );
 
-                symptoms: form.symptoms,
 
-                prescription: form.prescription,
+            const data =
+                await createMedicalRecord({
 
-                notes: form.notes,
+                    patientId:
+                        patientId.trim(),
 
-                testResults: form.testResults,
+                    symptoms:
+                        form.symptoms
+                            .split(",")
+                            .map(
+                                (item) =>
+                                    item.trim()
+                            )
+                            .filter(
+                                (item) =>
+                                    item !== ""
+                            ),
 
-                followUpDate:
-                    form.followUpDate || null
+                    diagnosis:
+                        form.diagnosis,
 
-            });
+                    testResults:
+                        form.testResults,
+
+                    prescription:
+                        validPrescription,
+
+                    followUpDate:
+                        form.followUpDate ||
+                        null,
+
+                    notes:
+                        form.notes,
+
+                    visitType:
+                        form.visitType
+
+                });
 
 
             alert(
@@ -118,22 +274,43 @@ const DoctorMedicalRecords = () => {
             );
 
 
+            // Add new record at top
+
             setRecords([
-                data.record,
+                data,
                 ...records
             ]);
 
 
+            // Reset form
+
             setForm({
 
-                diagnosis: "",
                 symptoms: "",
-                prescription: "",
-                notes: "",
+
+                diagnosis: "",
+
                 testResults: "",
-                followUpDate: ""
+
+                followUpDate: "",
+
+                notes: "",
+
+                visitType: "IN_PERSON"
 
             });
+
+
+            setPrescription([
+
+                {
+                    medicine: "",
+                    dosage: "",
+                    duration: ""
+                }
+
+            ]);
+
 
         } catch (error) {
 
@@ -142,11 +319,11 @@ const DoctorMedicalRecords = () => {
                 error
             );
 
+
             setError(
                 error.response?.data?.message ||
                 "Unable to create medical record."
             );
-
         }
     };
 
@@ -157,45 +334,91 @@ const DoctorMedicalRecords = () => {
 
             <Navbar />
 
+
             <div className="flex">
 
                 <Sidebar />
 
-                <main className="flex-1 p-6 bg-base-200 min-h-[calc(100vh-64px)]">
+
+                <main
+                    className="
+                        flex-1
+                        p-6
+                        bg-base-200
+                        min-h-[calc(100vh-64px)]
+                    "
+                >
+
+                    {/* ================================= */}
+                    {/* PAGE HEADER */}
+                    {/* ================================= */}
 
                     <h1 className="text-3xl font-bold">
+
                         Medical Records
+
                     </h1>
 
+
                     <p className="mt-2 opacity-70">
-                        View and create patient medical records
+
+                        View patient history and create
+                        consultation records
+
                     </p>
 
+
+                    {/* ================================= */}
+                    {/* ERROR */}
+                    {/* ================================= */}
 
                     {error && (
 
                         <div className="alert alert-error mt-6">
+
                             {error}
+
                         </div>
 
                     )}
 
 
-                    {/* Search patient */}
+                    {/* ================================= */}
+                    {/* SEARCH PATIENT */}
+                    {/* ================================= */}
 
-                    <div className="bg-base-100 rounded-box shadow mt-8 p-6">
+                    <div
+                        className="
+                            bg-base-100
+                            rounded-box
+                            shadow
+                            mt-8
+                            p-6
+                        "
+                    >
 
                         <h2 className="text-xl font-bold mb-4">
+
                             Find Patient
+
                         </h2>
 
 
-                        <div className="flex gap-3">
+                        <div className="
+                            flex
+                            flex-col
+                            md:flex-row
+                            gap-3
+                        ">
 
                             <input
                                 type="text"
                                 placeholder="Enter Patient ID"
-                                className="input input-bordered w-full"
+                                className="
+                                    input
+                                    input-bordered
+                                    w-full
+                                "
                                 value={patientId}
                                 onChange={(e) =>
                                     setPatientId(
@@ -206,10 +429,16 @@ const DoctorMedicalRecords = () => {
 
 
                             <button
+                                type="button"
                                 className="btn btn-primary"
                                 onClick={searchRecords}
+                                disabled={loading}
                             >
-                                Search
+
+                                {loading
+                                    ? "Searching..."
+                                    : "Search"}
+
                             </button>
 
                         </div>
@@ -217,14 +446,30 @@ const DoctorMedicalRecords = () => {
                     </div>
 
 
-                    {/* Previous records */}
+                    {/* ================================= */}
+                    {/* PREVIOUS RECORDS */}
+                    {/* ================================= */}
 
                     {patientId && (
 
-                        <div className="bg-base-100 rounded-box shadow mt-8 p-6">
+                        <div
+                            className="
+                                bg-base-100
+                                rounded-box
+                                shadow
+                                mt-8
+                                p-6
+                            "
+                        >
 
-                            <h2 className="text-xl font-bold mb-4">
-                                Previous Records
+                            <h2 className="
+                                text-xl
+                                font-bold
+                                mb-6
+                            ">
+
+                                Previous Medical Records
+
                             </h2>
 
 
@@ -237,70 +482,294 @@ const DoctorMedicalRecords = () => {
                             ) : records.length === 0 ? (
 
                                 <p className="opacity-60">
-                                    No previous medical records.
+
+                                    No previous medical
+                                    records.
+
                                 </p>
 
                             ) : (
 
-                                <div className="space-y-4">
+                                <div className="space-y-6">
 
-                                    {records.map((record) => (
+                                    {records.map(
+                                        (record) => (
 
-                                        <div
-                                            key={record._id}
-                                            className="border rounded-lg p-4"
-                                        >
+                                            <div
+                                                key={
+                                                    record._id
+                                                }
+                                                className="
+                                                    border
+                                                    rounded-lg
+                                                    p-5
+                                                "
+                                            >
 
-                                            <p>
-                                                <strong>
-                                                    Date:
-                                                </strong>{" "}
-                                                {record.createdAt
-                                                    ? new Date(
-                                                        record.createdAt
-                                                    ).toLocaleDateString()
-                                                    : "-"}
-                                            </p>
+                                                {/* DATE */}
 
+                                                <div className="
+                                                    flex
+                                                    justify-between
+                                                    items-center
+                                                    mb-4
+                                                ">
 
-                                            <p>
-                                                <strong>
-                                                    Diagnosis:
-                                                </strong>{" "}
-                                                {record.diagnosis ||
-                                                    "-"}
-                                            </p>
+                                                    <h3 className="
+                                                        font-bold
+                                                        text-lg
+                                                    ">
 
+                                                        {record.createdAt
+                                                            ? new Date(
+                                                                record.createdAt
+                                                            ).toLocaleDateString()
+                                                            : "-"}
 
-                                            <p>
-                                                <strong>
-                                                    Symptoms:
-                                                </strong>{" "}
-                                                {record.symptoms ||
-                                                    "-"}
-                                            </p>
-
-
-                                            <p>
-                                                <strong>
-                                                    Prescription:
-                                                </strong>{" "}
-                                                {record.prescription ||
-                                                    "-"}
-                                            </p>
+                                                    </h3>
 
 
-                                            <p>
-                                                <strong>
-                                                    Notes:
-                                                </strong>{" "}
-                                                {record.notes ||
-                                                    "-"}
-                                            </p>
+                                                    <span className="
+                                                        badge
+                                                        badge-primary
+                                                    ">
 
-                                        </div>
+                                                        {record.visitType ||
+                                                            "IN_PERSON"}
 
-                                    ))}
+                                                    </span>
+
+                                                </div>
+
+
+                                                {/* SYMPTOMS */}
+
+                                                <div className="mb-3">
+
+                                                    <p className="font-semibold">
+
+                                                        Symptoms
+
+                                                    </p>
+
+
+                                                    <p className="opacity-70">
+
+                                                        {Array.isArray(
+                                                            record.symptoms
+                                                        )
+                                                            ? record.symptoms.join(
+                                                                ", "
+                                                            )
+                                                            : record.symptoms ||
+                                                            "-"}
+
+                                                    </p>
+
+                                                </div>
+
+
+                                                {/* DIAGNOSIS */}
+
+                                                <div className="mb-3">
+
+                                                    <p className="font-semibold">
+
+                                                        Diagnosis
+
+                                                    </p>
+
+
+                                                    <p className="opacity-70">
+
+                                                        {record.diagnosis ||
+                                                            "-"}
+
+                                                    </p>
+
+                                                </div>
+
+
+                                                {/* TEST RESULTS */}
+
+                                                <div className="mb-3">
+
+                                                    <p className="font-semibold">
+
+                                                        Test Results
+
+                                                    </p>
+
+
+                                                    <p className="opacity-70">
+
+                                                        {record.testResults ||
+                                                            "-"}
+
+                                                    </p>
+
+                                                </div>
+
+
+                                                {/* PRESCRIPTION */}
+
+                                                <div className="mb-3">
+
+                                                    <p className="
+                                                        font-semibold
+                                                        mb-2
+                                                    ">
+
+                                                        Prescription
+
+                                                    </p>
+
+
+                                                    {!record.prescription ||
+                                                    record.prescription.length === 0 ? (
+
+                                                        <p className="opacity-60">
+
+                                                            No prescription
+
+                                                        </p>
+
+                                                    ) : (
+
+                                                        <div className="
+                                                            overflow-x-auto
+                                                        ">
+
+                                                            <table className="
+                                                                table
+                                                                table-sm
+                                                            ">
+
+                                                                <thead>
+
+                                                                    <tr>
+
+                                                                        <th>
+                                                                            Medicine
+                                                                        </th>
+
+                                                                        <th>
+                                                                            Dosage
+                                                                        </th>
+
+                                                                        <th>
+                                                                            Duration
+                                                                        </th>
+
+                                                                    </tr>
+
+                                                                </thead>
+
+
+                                                                <tbody>
+
+                                                                    {record.prescription.map(
+                                                                        (
+                                                                            medicine,
+                                                                            index
+                                                                        ) => (
+
+                                                                            <tr
+                                                                                key={
+                                                                                    index
+                                                                                }
+                                                                            >
+
+                                                                                <td>
+
+                                                                                    {
+                                                                                        medicine.medicine
+                                                                                    }
+
+                                                                                </td>
+
+                                                                                <td>
+
+                                                                                    {
+                                                                                        medicine.dosage ||
+                                                                                        "-"
+                                                                                    }
+
+                                                                                </td>
+
+                                                                                <td>
+
+                                                                                    {
+                                                                                        medicine.duration ||
+                                                                                        "-"
+                                                                                    }
+
+                                                                                </td>
+
+                                                                            </tr>
+
+                                                                        )
+                                                                    )}
+
+                                                                </tbody>
+
+                                                            </table>
+
+                                                        </div>
+
+                                                    )}
+
+                                                </div>
+
+
+                                                {/* FOLLOW UP */}
+
+                                                <div className="mb-3">
+
+                                                    <p className="font-semibold">
+
+                                                        Follow-up Date
+
+                                                    </p>
+
+
+                                                    <p className="opacity-70">
+
+                                                        {record.followUpDate
+                                                            ? new Date(
+                                                                record.followUpDate
+                                                            ).toLocaleDateString()
+                                                            : "No follow-up"}
+
+                                                    </p>
+
+                                                </div>
+
+
+                                                {/* NOTES */}
+
+                                                <div>
+
+                                                    <p className="font-semibold">
+
+                                                        Notes
+
+                                                    </p>
+
+
+                                                    <p className="opacity-70">
+
+                                                        {record.notes ||
+                                                            "-"}
+
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+                                        )
+                                    )}
 
                                 </div>
 
@@ -311,83 +780,498 @@ const DoctorMedicalRecords = () => {
                     )}
 
 
-                    {/* Create record */}
+                    {/* ================================= */}
+                    {/* CREATE MEDICAL RECORD */}
+                    {/* ================================= */}
 
                     {patientId && (
 
                         <form
                             onSubmit={handleSubmit}
-                            className="bg-base-100 rounded-box shadow mt-8 p-6"
+                            className="
+                                bg-base-100
+                                rounded-box
+                                shadow
+                                mt-8
+                                p-6
+                            "
                         >
 
-                            <h2 className="text-xl font-bold mb-6">
+                            <h2 className="
+                                text-xl
+                                font-bold
+                                mb-6
+                            ">
+
                                 Add Consultation Record
+
                             </h2>
 
 
-                            <div className="grid md:grid-cols-2 gap-4">
+                            {/* VISIT TYPE */}
+
+                            <div className="form-control mb-5">
+
+                                <label className="label">
+
+                                    <span className="label-text font-semibold">
+
+                                        Visit Type
+
+                                    </span>
+
+                                </label>
+
+
+                                <select
+                                    name="visitType"
+                                    className="
+                                        select
+                                        select-bordered
+                                    "
+                                    value={
+                                        form.visitType
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                >
+
+                                    <option value="IN_PERSON">
+
+                                        In Person
+
+                                    </option>
+
+
+                                    <option value="TELECONSULTATION">
+
+                                        Teleconsultation
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            {/* SYMPTOMS */}
+
+                            <div className="form-control mb-5">
+
+                                <label className="label">
+
+                                    <span className="label-text font-semibold">
+
+                                        Symptoms
+
+                                    </span>
+
+                                </label>
+
 
                                 <input
                                     name="symptoms"
-                                    placeholder="Symptoms"
-                                    className="input input-bordered"
-                                    value={form.symptoms}
-                                    onChange={handleChange}
+                                    placeholder="
+                                        Example:
+                                        Fever, Headache, Weakness
+                                    "
+                                    className="
+                                        input
+                                        input-bordered
+                                    "
+                                    value={
+                                        form.symptoms
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
 
-                                <input
+                                <label className="label">
+
+                                    <span className="label-text-alt opacity-60">
+
+                                        Separate multiple
+                                        symptoms with commas
+
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+
+                            {/* DIAGNOSIS */}
+
+                            <div className="form-control mb-5">
+
+                                <label className="label">
+
+                                    <span className="label-text font-semibold">
+
+                                        Diagnosis
+
+                                    </span>
+
+                                </label>
+
+
+                                <textarea
                                     name="diagnosis"
-                                    placeholder="Diagnosis"
-                                    className="input input-bordered"
-                                    value={form.diagnosis}
-                                    onChange={handleChange}
-                                />
-
-
-                                <input
-                                    name="prescription"
-                                    placeholder="Prescription"
-                                    className="input input-bordered"
-                                    value={form.prescription}
-                                    onChange={handleChange}
-                                />
-
-
-                                <input
-                                    name="testResults"
-                                    placeholder="Test Results"
-                                    className="input input-bordered"
-                                    value={form.testResults}
-                                    onChange={handleChange}
-                                />
-
-
-                                <input
-                                    type="date"
-                                    name="followUpDate"
-                                    className="input input-bordered"
-                                    value={form.followUpDate}
-                                    onChange={handleChange}
+                                    placeholder="Enter diagnosis"
+                                    className="
+                                        textarea
+                                        textarea-bordered
+                                        w-full
+                                    "
+                                    value={
+                                        form.diagnosis
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
                                 />
 
                             </div>
 
 
-                            <textarea
-                                name="notes"
-                                placeholder="Doctor's notes"
-                                className="textarea textarea-bordered w-full mt-4"
-                                value={form.notes}
-                                onChange={handleChange}
-                            />
+                            {/* TEST RESULTS */}
 
+                            <div className="form-control mb-5">
+
+                                <label className="label">
+
+                                    <span className="label-text font-semibold">
+
+                                        Test Results
+
+                                    </span>
+
+                                </label>
+
+
+                                <textarea
+                                    name="testResults"
+                                    placeholder="
+                                        Enter laboratory /
+                                        diagnostic test results
+                                    "
+                                    className="
+                                        textarea
+                                        textarea-bordered
+                                        w-full
+                                    "
+                                    value={
+                                        form.testResults
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                />
+
+                            </div>
+
+
+                            {/* ================================= */}
+                            {/* PRESCRIPTION */}
+                            {/* ================================= */}
+
+                            <div className="
+                                border
+                                rounded-lg
+                                p-4
+                                mb-5
+                            ">
+
+                                <div className="
+                                    flex
+                                    justify-between
+                                    items-center
+                                    mb-4
+                                ">
+
+                                    <h3 className="
+                                        font-semibold
+                                        text-lg
+                                    ">
+
+                                        Prescription
+
+                                    </h3>
+
+
+                                    <button
+                                        type="button"
+                                        className="
+                                            btn
+                                            btn-sm
+                                            btn-outline
+                                        "
+                                        onClick={
+                                            addMedicine
+                                        }
+                                    >
+
+                                        + Add Medicine
+
+                                    </button>
+
+                                </div>
+
+
+                                <div className="space-y-4">
+
+                                    {prescription.map(
+                                        (
+                                            medicine,
+                                            index
+                                        ) => (
+
+                                            <div
+                                                key={index}
+                                                className="
+                                                    grid
+                                                    md:grid-cols-4
+                                                    gap-3
+                                                    items-end
+                                                "
+                                            >
+
+                                                {/* MEDICINE */}
+
+                                                <div className="form-control">
+
+                                                    <label className="label">
+
+                                                        <span className="
+                                                            label-text
+                                                        ">
+
+                                                            Medicine
+
+                                                        </span>
+
+                                                    </label>
+
+
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Paracetamol"
+                                                        className="
+                                                            input
+                                                            input-bordered
+                                                        "
+                                                        value={
+                                                            medicine.medicine
+                                                        }
+                                                        onChange={(e) =>
+                                                            handlePrescriptionChange(
+                                                                index,
+                                                                "medicine",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+
+                                                </div>
+
+
+                                                {/* DOSAGE */}
+
+                                                <div className="form-control">
+
+                                                    <label className="label">
+
+                                                        <span className="
+                                                            label-text
+                                                        ">
+
+                                                            Dosage
+
+                                                        </span>
+
+                                                    </label>
+
+
+                                                    <input
+                                                        type="text"
+                                                        placeholder="500mg"
+                                                        className="
+                                                            input
+                                                            input-bordered
+                                                        "
+                                                        value={
+                                                            medicine.dosage
+                                                        }
+                                                        onChange={(e) =>
+                                                            handlePrescriptionChange(
+                                                                index,
+                                                                "dosage",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+
+                                                </div>
+
+
+                                                {/* DURATION */}
+
+                                                <div className="form-control">
+
+                                                    <label className="label">
+
+                                                        <span className="
+                                                            label-text
+                                                        ">
+
+                                                            Duration
+
+                                                        </span>
+
+                                                    </label>
+
+
+                                                    <input
+                                                        type="text"
+                                                        placeholder="5 days"
+                                                        className="
+                                                            input
+                                                            input-bordered
+                                                        "
+                                                        value={
+                                                            medicine.duration
+                                                        }
+                                                        onChange={(e) =>
+                                                            handlePrescriptionChange(
+                                                                index,
+                                                                "duration",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    />
+
+                                                </div>
+
+
+                                                {/* REMOVE */}
+
+                                                <button
+                                                    type="button"
+                                                    className="
+                                                        btn
+                                                        btn-error
+                                                        btn-outline
+                                                    "
+                                                    disabled={
+                                                        prescription.length === 1
+                                                    }
+                                                    onClick={() =>
+                                                        removeMedicine(
+                                                            index
+                                                        )
+                                                    }
+                                                >
+
+                                                    Remove
+
+                                                </button>
+
+                                            </div>
+
+                                        )
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+                            {/* FOLLOW UP */}
+
+                            <div className="form-control mb-5">
+
+                                <label className="label">
+
+                                    <span className="label-text font-semibold">
+
+                                        Follow-up Date
+
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="date"
+                                    name="followUpDate"
+                                    className="
+                                        input
+                                        input-bordered
+                                    "
+                                    value={
+                                        form.followUpDate
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                />
+
+                            </div>
+
+
+                            {/* NOTES */}
+
+                            <div className="form-control mb-6">
+
+                                <label className="label">
+
+                                    <span className="label-text font-semibold">
+
+                                        Doctor's Notes
+
+                                    </span>
+
+                                </label>
+
+
+                                <textarea
+                                    name="notes"
+                                    placeholder="
+                                        Enter consultation notes,
+                                        instructions, observations...
+                                    "
+                                    className="
+                                        textarea
+                                        textarea-bordered
+                                        w-full
+                                        min-h-32
+                                    "
+                                    value={
+                                        form.notes
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                />
+
+                            </div>
+
+
+                            {/* SUBMIT */}
 
                             <button
                                 type="submit"
-                                className="btn btn-primary mt-6"
+                                className="
+                                    btn
+                                    btn-primary
+                                "
                             >
+
                                 Save Medical Record
+
                             </button>
 
                         </form>
